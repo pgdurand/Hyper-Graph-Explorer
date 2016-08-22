@@ -1,0 +1,6 @@
+.classpath
+.project
+/distrib
+/lib
+/bin
+**/.DS_Store

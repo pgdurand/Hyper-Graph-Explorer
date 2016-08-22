@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2003-2016 Patrick G. Durand
+ 
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+ 
+      http://www.apache.org/licenses/LICENSE-2.0
+ 
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<!-- ============================================================= -->
+<project name="HGE" default="help" basedir=".">
+
+<property name="eoql.libName"    value="hge" />
+<property name="eoql.LibVersion" value="2.2.0" />
+
+<property name="compile.optimize" value="on" />
+<property name="compile.debug"    value="off" />
+
+<property name="src"     value="${basedir}/src" />
+<property name="distrib" value="${basedir}/distrib" />
+<property name="lib"     value="${basedir}/lib" />
+<property name="bin"     value="${basedir}/jar" />
+<property name="doc"     value="${basedir}/doc" />
+<property name="doc.api" value="${doc}/api" />
+
+<property name="javacc.jar"  value="${bin}/javacc.jar"/>
+
+<property name="eoqlLibJar"  value="${distrib}/${eoql.libName}-${eoql.LibVersion}.jar"/>
+
+<property name="app.classpath" 
+         value="${javacc.jar}:${jgrapht.jar}:${junit.jar}" />
+
+<path id="class.path">
+    <pathelement path="${classpath}"/>
+    <pathelement path="${app.classpath}"/>
+    <pathelement location="${lib}"/>
+</path>
+
+<!-- ============================================================= -->
+<target name="help">
+  <echo>Ant task to handle HGE project.</echo>
+  <echo/>
+  <echo>         gen*: compile the HGE query language using JavaCC.</echo>
+  <echo>               NEVER USE it unless you have updated the HGE query grammar.</echo>
+  <echo>               (read 'src/bzh/plealog/hge/parser/readme' for more information).</echo>
+  <echo>      compile: compile the code.</echo>
+  <echo>         jdoc: compile the Javadoc.</echo>
+  <echo>  makedistrib: compile and make JAR of the HGE system.</echo>
+</target>
+
+<!-- ============================================================= -->
+<target name="prepare">
+    <mkdir dir="${lib}" />
+</target>
+
+<!-- ============================================================= -->
+<target name="genjj" depends="prepare">
+    <java classname="jjtree">
+      <arg line="-OUTPUT_DIRECTORY:${src}/bzh/plealog/hge/parser ${src}/bzh/plealog/hge/parser/hge_parser.jjt"/> 
+      <classpath>
+        <pathelement location="${javacc.jar}"/>
+      </classpath>
+    </java>
+</target>
+
+<!-- ============================================================= -->
+<target name="genjava" depends="prepare">
+    <java classname="javacc">
+      <arg line="-OUTPUT_DIRECTORY:${src}/bzh/plealog/hge/parser ${src}/bzh/plealog/hge/parser/hge_parser.jj"/> 
+      <classpath>
+        <pathelement location="${javacc.jar}"/>
+      </classpath>
+    </java>
+</target>
+
+<!-- ============================================================= -->
+<target name="compile" depends="prepare">
+   <javac srcdir="${src}/bzh/plealog/hge/"
+          destdir="${lib}"
+	      classpathref="class.path"
+          debug="${compile.debug}"
+          optimize="${compile.optimize}"
+          >
+   </javac>
+</target>
+
+<!-- ============================================================= -->
+<target name="makedistrib" depends="compile" >
+    <delete dir="${distrib}"/>
+    <mkdir dir="${distrib}"/>
+    <jar destfile="${eoqlLibJar}">
+		    <fileset dir="${lib}">
+		      <include name="bzh/plealog/hge/api/datamodel/**"/>
+		      <include name="bzh/plealog/hge/api/function/**"/>
+		      <include name="bzh/plealog/hge/api/hypergraph/**"/>
+          <include name="bzh/plealog/hge/api/query/**"/>
+		      <include name="bzh/plealog/hge/dataholder/**"/>
+		      <include name="bzh/plealog/hge/engine/**"/>
+          <include name="bzh/plealog/hge/function/**"/>
+		      <include name="bzh/plealog/hge/operator/**"/>
+		      <include name="bzh/plealog/hge/parser/**"/>
+		      <include name="bzh/plealog/hge/validator/**"/>
+		      <exclude name="**/*jj*"/>
+		    </fileset>
+        <fileset file="${basedir}/LICENSE.TXT" />
+        <fileset file="${basedir}/NOTICE.TXT" />
+        <manifest>
+          <attribute name="Built-By" value="Patrick G. Durand"/>
+        </manifest>
+    </jar>
+</target>
+
+<target name="deploylib">
+  <copy file="${eoqlLibJar}" todir="${basedir}/../P-bioinfo-filter/jar"/>
+  <copy file="${eoqlLibJar}" todir="${basedir}/../P-bioinfo-filter-ui/jar"/>
+  <copy file="${eoqlLibJar}" todir="${basedir}/../BLAST-Filter-Tool/jar"/>
+</target>
+
+<!-- =================================================================== -->
+<!-- target to create JavaDoc                                     -->
+<!-- =================================================================== -->
+<target name="jdoc">
+  <delete dir="${doc.api}" />
+  <mkdir dir="${doc.api}" />
+  <javadoc
+    packagenames="bzh.plealog.hge.api.datamodel,bzh.plealog.hge.api.function,bzh.plealog.hge.api.hypergraph,bzh.plealog.hge.api.query"
+    excludepackagenames="test"
+    Overview="${src}/overview.html" 
+    Private="false" 
+    Splitindex="true" 
+    Windowtitle="Hyper Graph Explorer API" 
+    author="true" 
+    classpathref="class.path" 
+    destdir="${doc.api}" 
+    maxmemory="256M" 
+    sourcepath="${src}" 
+    version="true">
+    <bottom>
+      <![CDATA[Plealog Software - 2003-2016]]>
+    </bottom>
+    <header>
+      <![CDATA[Hyper Graph Explorer API<BR>specification]]></header>
+    <link href="https://docs.oracle.com/javase/6/docs/api/"/>
+  </javadoc>
+</target>
+	
+
+</project>

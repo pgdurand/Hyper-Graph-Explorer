@@ -1,0 +1,664 @@
+/*  Copyright 2003-2016 Patrick G. Durand
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+options {
+   STATIC=false;
+   MULTI=true;
+   VISITOR=true;
+   NODE_PREFIX="HGE";
+   NODE_PACKAGE="bzh.plealog.hge.parser";
+}
+
+PARSER_BEGIN(HGEParser)
+package bzh.plealog.hge.parser;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Collection;
+import bzh.plealog.hge.dataholder.*;
+
+public class HGEParser {
+    private static String removeQuotes(Token t){
+        return (t.image.substring(1, t.image.length()-1));
+    }
+    
+}
+
+PARSER_END(HGEParser)
+
+SKIP : /* WHITE SPACE */
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+| "\f"
+}
+
+TOKEN: 
+{
+    < PLUS          : "+" >
+  | < MINUS         : "-" >
+  | < MULT          : "*" >
+  | < DIV           : "/" >
+  | < MOD           : "%" >
+  | < LT            : "<" >
+  | < LTE           : "<=" >
+  | < GT            : ">" >
+  | < GTE           : ">=" >
+  | < EQ            : "==" >
+  | < NEQ           : "!=" >
+  | < MAT           : "::" >
+  | < NMAT          : "!:" >
+  | < AND           : "and" >
+  | < NOT           : "not" >
+  | < OR            : "or" >
+  | < OPENPAR       : "(" >
+  | < CLOSEPAR      : ")" >
+  | < SEMICOLON     : ";" >
+  | < DOT           : "." >
+  | < COLON         : ":" >
+  | < COMMA         : "," >
+  | < FROM          : "from" >
+  | < WHERE         : "where" >
+  | < RETURN        : "return" >
+  | < PATH          : "path" >
+  | < NEXT          : "next" >
+  | < CONNECT       : "connect" >
+  | < UNTIL         : "until" >
+  | < IN            : "in" >
+  | < TRUE          : "true" >
+  | < FALSE         : "false" >
+  | < DISTINCT      : "distinct" >
+  | < AS            : "as" >
+  | < AMP           : "&" >
+}
+
+TOKEN:  /* Literals : integer, real, string and char*/
+{
+    < INTEGER_LITERAL: (["0"-"9"])+ >
+  | < FLOATING_POINT_LITERAL:
+          (["0"-"9"])+ "." (["0"-"9"])+ (<EXPONENT>)?
+        | "." (["0"-"9"])+ (<EXPONENT>)?
+        | (["0"-"9"])+ <EXPONENT>
+        | (["0"-"9"])+ (<EXPONENT>)?
+    >
+  | < #EXPONENT: ["e","E"] (["+","-"])? (["0"-"9"])+ >
+  | < CHARACTER_LITERAL:
+      "'"
+      (   (~["'","\\","\n","\r"])
+        | ("\\"
+            ( ["n","t","b","r","f","\\","'","\""]
+            | ["0"-"7"] ( ["0"-"7"] )?
+            | ["0"-"3"] ["0"-"7"] ["0"-"7"]
+            )
+          )
+      )
+      "'"
+    >
+  | < STRING_LITERAL:
+      "\""
+      (   (~["\"","\n","\r"])
+        | ("\\"
+            ( ["n","t","b","r","f","\\","'","\""]
+            | ["0"-"7"] ( ["0"-"7"] )?
+            | ["0"-"3"] ["0"-"7"] ["0"-"7"]
+            )
+          )
+      )*
+      "\""
+    >
+}
+
+TOKEN:  /* Identifiers */
+{
+    < IDENTIFIER: ( <LETTER> | "_" )+ ( "_" | <DIGIT> | <LETTER> )* >
+  | < #LETTER: ["A"-"Z", "a"-"z"] >
+  | < #DIGIT: ["0"-"9"] >
+}
+
+/*
+ * Start - Process a QueryClause
+ */
+    HGEQuery Query() :
+    {}
+    {
+        ( <FROM> SimpleQuery()
+          <RETURN> QueryReturnClause()
+          <SEMICOLON>
+        )
+        { return jjtThis; }
+    }
+    
+    HGESimpleQuery SimpleQuery() :
+    {}
+    {
+        ( SimpleQueryDeclaration()
+          (<AMP> SimpleQueryDeclaration())*
+          [<WHERE> QueryWhereClause()]
+        )
+        { return jjtThis; }
+    }
+    
+    HGESimpleQueryDeclaration SimpleQueryDeclaration() :
+    {}
+    {
+        ( 
+          VariableName() <AS> QueryClause()
+        )
+        { return jjtThis; }
+    }
+
+/*    HGESimpleQuery SimpleQuery() :
+    {}
+    {
+        ( QueryClause()
+          [<WHERE> QueryWhereClause()]
+        )
+        { return jjtThis; }
+    }
+*/
+    HGEQueryClause QueryClause() :
+    {}
+    {
+        ( QueryClauseDeclaration()
+          (<COMMA> QueryClauseDeclaration())*
+        )
+        { return jjtThis; }
+    }
+    
+    void QueryClauseDeclaration() #void :
+    {}
+    {
+        
+        LOOKAHEAD(2) VarEdgeDeclaration() 
+        | LOOKAHEAD(2) VarPathDeclaration() 
+        | VarNodeDeclaration()
+    }
+/*
+ * End - Process a QueryClause
+ */
+
+/*
+ * Start - Process a VarNodeDeclaration
+ */
+    HGEVarNodeDeclaration VarNodeDeclaration() :
+    {Token t;}
+    {
+        ( 
+          VariableName()
+          [ <IN> TypeExpression() ]
+        )
+        { return jjtThis; }
+    }
+/*
+ * End - Process a VarNodeDeclaration
+ */
+
+/*
+ * Start - Process an VarEdgeDeclaration
+ */
+    HGEVarEdgeDeclaration VarEdgeDeclaration() :
+    {Token t;}
+    {
+        ( 
+          VariableName()
+          <COLON>
+          VariableName()
+          (<MINUS>
+          VariableName())+
+          [ <IN> TypeExpression() ]
+        )
+        { return jjtThis; }
+    }
+/*
+ * End - Process an VarEdgeDeclaration
+ */
+
+/*
+ * Start - Process a VarPathDeclaration
+ */
+    HGEVarPathDeclaration VarPathDeclaration() :
+    {Token t;}
+    {
+        ( 
+          VariableName()
+          <OPENPAR>
+          VariableName()
+          <COMMA>
+          VariableName()
+          <COMMA>
+          PathOperator()
+          [ <COMMA> PathLength() 
+              [ <COMMA> PathLength() 
+              ]
+          ]
+          <CLOSEPAR>
+        )
+        { return jjtThis; }
+    }
+    
+    void PathOperator() #PathOperator :
+    {Token t;}
+    {
+        (t=<NEXT> | t=<CONNECT> | t=<UNTIL>)
+        {jjtThis.setValue(new HGEString(t.image));} 
+    }
+    
+    void PathLength() #PathLength :
+    {Token t;}
+    {
+        (t=<INTEGER_LITERAL>)
+        {jjtThis.setValue(new HGELong(t.image));} 
+    }
+/*
+ * End - Process a VarPathDeclaration
+ */
+
+/*
+ * Start - used within a Node/Edge/Path Declaration
+ */
+    void VariableName() #VariableName :
+    {Token t;}
+    {
+        (t=<IDENTIFIER>)
+        {jjtThis.setValue(new HGEIdentifier(t.image));} 
+    }
+/*
+ * End - used within a Node/Edge/Path Declaration
+ */
+
+/*
+ * Start - Process a TypeExpression (declaration of Node/Edge data type expression)
+ */
+    HGETypeExpression TypeExpression() :
+    {}
+    {
+        OrTypeExpression()
+        { return jjtThis; }
+    }
+    
+    void OrTypeExpression() #void :
+    {}
+    {
+        ( AndTypeExpression()
+            ( <OR> AndTypeExpression() #OrTypeExpression(2) )*
+        )
+    }
+    
+    void AndTypeExpression() #void :
+    {}
+    {
+        UnaryTypeExpression()
+        ( <AND> UnaryTypeExpression() #AndTypeExpression(2) )*
+    }
+    
+    void UnaryTypeExpression() #void :
+    {}
+    {
+        <NOT> UnaryTypeExpression() #NotTypeExpression(1)
+        |
+        PrimaryTypeExpression()
+    }
+    
+    void PrimaryTypeExpression() #void :
+    {
+        Token t;
+    }
+    {
+        DataType()
+        |
+        ( <OPENPAR> TypeExpression() <CLOSEPAR> )
+    }
+    
+    void DataType() #DataType :
+    {Token t;}
+    {
+        (t=<STRING_LITERAL>)
+        {jjtThis.setValue(new HGEString(removeQuotes(t)));} 
+    }
+/*
+ * End - Process a TypeExpression (declaration of Node/Edge data type expression)
+ */
+
+/*
+ * Start - process a QueryWhereClause
+ */
+    HGEQueryWhereClause QueryWhereClause() :
+    {}
+    {
+        QueryWhereExpression() (<COMMA> QueryWhereExpression())*
+        { return jjtThis; }
+    }
+
+    void QueryWhereExpression() #QueryWhereExpression:
+    {}
+    {
+      ConditionalOrExpression()
+    }
+    
+    void ConditionalOrExpression() #void :
+    {}
+    {
+      ConditionalAndExpression()
+      ( "or" ConditionalAndExpression() #OrNode(2) )*
+    }
+    
+    void ConditionalAndExpression() #void :
+    {}
+    {
+      EqualityExpression()
+      ( "and" EqualityExpression() #AndNode(2) )*
+    }
+    
+    void EqualityExpression() #void :
+    {}
+    {
+      RelationalExpression()
+      (
+         "==" RelationalExpression() #EQNode(2)
+       |
+         "!=" RelationalExpression() #NENode(2)
+       |
+         "::" RelationalExpression() #MatNode(2)
+       |
+         "!:" RelationalExpression() #NMatNode(2)
+      )*
+    }
+    
+    void RelationalExpression() #void :
+    {}
+    {
+      AdditiveExpression()
+      (
+        "<" AdditiveExpression() #LTNode(2)
+       |
+        ">" AdditiveExpression() #GTNode(2)
+       |
+        "<=" AdditiveExpression() #LENode(2)
+       |
+        ">=" AdditiveExpression() #GENode(2)
+      )*
+    }
+    
+    void AdditiveExpression() #void :
+    {}
+    {
+      MultiplicativeExpression()
+      (
+        "+" MultiplicativeExpression() #AddNode(2)
+       |
+        "-" MultiplicativeExpression() #SubtractNode(2)
+      )*
+    }
+    
+    void MultiplicativeExpression() #void :
+    {}
+    {
+      UnaryExpression()
+      (
+        "*" UnaryExpression() #MulNode(2)
+       |
+        "/" UnaryExpression() #DivNode(2)
+       |
+        "%" UnaryExpression() #ModNode(2)
+      )*
+    }
+    
+    void UnaryExpression() #void :
+    {}
+    {
+      "-" UnaryExpression() #UnaryMinusNode(1)
+    |
+      "!" UnaryExpression() #NotNode(1)
+    |
+      PrimaryExpression()
+    }
+    
+    void PrimaryExpression() #void :
+    {}
+    {
+      ("[" ListLiteral() "]")
+      |
+      ("{" SetLiteral() "}")
+      |
+      LOOKAHEAD(2) FunctionCall()
+      |
+      LOOKAHEAD(2) VarAccessor()
+      |
+      IntegerLiteral()
+      |
+      FloatLiteral()
+      |
+      BooleanLiteral() 
+      |
+      StringLiteral() 
+      |
+      CharacterLiteral() 
+      |
+      ("(" QueryWhereExpression() ")")
+    }
+    
+    void VarAccessor() #VarAccessor :
+    {
+        ArrayList al = new ArrayList();
+        String    varID=null;
+        Token     t;
+    }
+    {
+        ( (t = <IDENTIFIER>){varID=t.image;} 
+          ( <DOT> 
+            (t = <IDENTIFIER>){al.add(t.image);} )*
+        )
+        { 
+            if (al.isEmpty())
+                jjtThis.setValue(new HGEVarInstance(new HGEIdentifier(varID))); 
+            else
+                jjtThis.setValue(new HGEVarAccess(new HGEIdentifier(varID), al)); 
+        }
+    }
+
+    void ListLiteral() #ListLiteral :
+    {
+        ArrayList al = new ArrayList();
+        HashSet control = new HashSet();
+        Token     t;
+    }
+    {
+        ( BasicLiteral(al, control)
+          ( <COMMA> BasicLiteral(al, control) )*
+        )
+        { jjtThis.setValue(new HGEList(al)); }
+    }
+
+    void SetLiteral() #SetLiteral :
+    {
+        HashSet set = new HashSet();
+        HashSet control = new HashSet();
+        Token   t;
+    }
+    {
+        ( BasicLiteral(set, control)
+          ( <COMMA> BasicLiteral(set, control) )*
+        )
+        { jjtThis.setValue(new HGESet(set)); }
+    }
+
+    void BasicLiteral(Collection list, Set control) #void :
+    {Token t; String str;}
+    {
+        ( t = <INTEGER_LITERAL>)
+            { if (!control.contains(t.image)) {control.add(t.image); list.add(new HGELong(t.image)); } }
+        |
+        ( t = <FLOATING_POINT_LITERAL>)
+            { if (!control.contains(t.image)) {control.add(t.image); list.add(new HGEDouble(t.image)); } }
+        |
+        ( t=<TRUE> | t=<FALSE>)
+            { if (!control.contains(t.image)) {control.add(t.image); list.add(new HGEBoolean(t.image)); } }
+        |
+        ( t = <STRING_LITERAL>)
+            {   str = t.image.substring(1,t.image.length()-1);
+                if (!control.contains(str)) {control.add(str); list.add(new HGEString(str)); } }
+        |
+        ( t = <CHARACTER_LITERAL>)
+            {   str = String.valueOf(t.image.charAt(1));
+                if (!control.contains(str)) {control.add(str); list.add(new HGECharacter(str)); } }
+    }
+
+    void IntegerLiteral() #IntegerLiteral :
+    {Token t;}
+    {
+        ( t = <INTEGER_LITERAL>)
+        { jjtThis.setValue(new HGELong(t.image)); }
+    }
+
+    void FloatLiteral() #FloatLiteral :
+    {Token t;}
+    {
+        ( t = <FLOATING_POINT_LITERAL> )
+        { jjtThis.setValue(new HGEDouble(t.image)); }
+    }
+
+    void CharacterLiteral() #CharacterLiteral :
+    {Token t;}
+    {
+        ( t = <CHARACTER_LITERAL> )
+        { jjtThis.setValue(new HGECharacter(t.image.charAt(1))); }
+    }
+    
+    void StringLiteral() #StringLiteral :
+    {Token t;}
+    {
+        ( t = <STRING_LITERAL> )
+        { jjtThis.setValue(new HGEString(t.image.substring(1,t.image.length()-1))); }
+    }
+    
+    void BooleanLiteral() #BooleanLiteral :
+    {Token t;}
+    {
+        (t=<TRUE> | t=<FALSE>)
+        { jjtThis.setValue(new HGEBoolean(t.image)); }
+    }
+
+    void FunctionCall() #FunctionCall :
+    {
+        Token        t;
+        int          args=0;
+        HGEFunction func;
+    }
+    {
+        ( (t = <IDENTIFIER>) <OPENPAR> [ args=FunctionArgs() ] <CLOSEPAR> )
+        {
+            func = new HGEFunction(t.image);
+            func.setArgs(args);
+            jjtThis.setValue(func);
+        }
+    }
+
+    int FunctionArgs() #void :
+    {int args=0;}
+    {
+        (ArgAdditiveExpression(){args++;}
+          (<COMMA> (ArgAdditiveExpression(){args++;}))*)
+          {
+            return(args);
+          }
+    }
+
+    void ArgAdditiveExpression() #void :
+    {}
+    {
+      ArgMultiplicativeExpression()
+      (
+        "+" ArgMultiplicativeExpression() #AddNode(2)
+       |
+        "-" ArgMultiplicativeExpression() #SubtractNode(2)
+      )*
+    }
+    
+    void ArgMultiplicativeExpression() #void :
+    {}
+    {
+      ArgUnaryExpression()
+      (
+        "*" ArgUnaryExpression() #MulNode(2)
+       |
+        "/" ArgUnaryExpression() #DivNode(2)
+       |
+        "%" ArgUnaryExpression() #ModNode(2)
+      )*
+    }
+    
+    void ArgUnaryExpression() #void :
+    {}
+    {
+      "-" ArgUnaryExpression() #UnaryMinusNode(1)
+    |
+      "!" ArgUnaryExpression() #NotNode(1)
+    |
+      ArgPrimaryExpression()
+    }
+    
+    void ArgPrimaryExpression() #void :
+    {}
+    {
+      ("[" ListLiteral() "]")
+      |
+      ("{" SetLiteral() "}")
+      |
+      LOOKAHEAD(2) FunctionCall()
+      |
+      LOOKAHEAD(2) VarAccessor()
+      |
+      IntegerLiteral()
+      |
+      FloatLiteral()
+      |
+      BooleanLiteral() 
+      |
+      StringLiteral() 
+      |
+      CharacterLiteral() 
+      |
+      ("(" ArgAdditiveExpression() ")")
+    }
+    
+/**/
+/*
+ * End - process a QueryWhereClause
+ */
+
+/*
+ * Start - process a ReturnClause
+ */
+    HGEQueryReturnClause QueryReturnClause() :
+    {
+    boolean bDistinct=false;
+    }
+    {
+        [<DISTINCT>{bDistinct=true;}] 
+        ((<MULT>)
+         |
+         ( VariableName() (<COMMA> VariableName())*)
+        )
+        { 
+        	jjtThis.setValue((bDistinct ? HGEBoolean.TRUE : HGEBoolean.FALSE));
+        	return jjtThis; 
+        }
+    }
+/*
+ * End - process a ReturnClause
+ */
+

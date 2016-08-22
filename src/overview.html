@@ -1,0 +1,46 @@
+<HTML>
+    <BODY>
+<H3>Introduction</H3>
+<p>This is the Public Application Programming Interface of Hyper Graph Explorer (HGE) software.</p>
+
+<p>HGE is a 100% pure Java software implementing a data modeling system relying on an hyper-graph.</p>
+
+<H3>Main Features</H3>
+<p>It contains the following main features:</p>
+<ul>
+<li>a hierarchical data modeling system used to describe real data</li> 
+<li>a data topology representation relying on a hyper-graph</li>
+<li>a query system enabling to explore the data graph using hyper-graph queries</li>
+</ul>
+
+<H3>Main Packages</H3>
+<p>These features are implemented with the following packages:</p>
+<ul>
+<li>"datamodel" package: use it to describe your real data. The data modeling scheme relies on a hyper-graph: 
+data elements are nodes (or vertices) that are linked together using hyper-edges. The latter offers the advantage 
+of representing n-ary relations (n>1). So, a "datamodel" is a hyper-graph of "types".</li>
+
+<li>"hypergraph" package: use it to represent the real data as an hyper-graph. So, this is the real world graph, where
+vertices and hyper-edges are typed with the data model.</li>
+
+<li> "query" package: use it to setup and run hyper-graph queries. It is worth noting that the query 
+execution engine implements a method to solve the subgraph isomorphism problem in the context of an hyper-graph 
+containing data types and values.</li> 
+
+<li> "function" package: provides a way to implement custom-made manipulation of data. Functions are then used 
+by their name in a query.</li> 
+
+<li>Other packages are support codes to implement the entire system, mostly the query language parser/validator 
+and the query execution engine.</li> 
+</ul>
+
+<H3>HGE: how to use it with real data?</H3>
+
+<p>HGE does not know any particular data models. To use the system you have to implement the interfaces of 
+packages "datamodel" and "hypergraph".</p> 
+
+<p>You can review a real example by getting a look at the [Blast Filter Tool](http://) project: 
+it provides an implementation of HGE to deal with annotated BLAST results data model; this is an 
+application of HGE in the field of bioinformatics.</p>
+    </BODY>
+</HTML>

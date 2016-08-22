@@ -1,0 +1,18 @@
+Within this package, we have the grammar file of the HGE query language.
+
+It relies on JavaCC v3.2. (https://javacc.java.net/)
+
+To create new parser classes:
+
+1. only keep hgeparser.jjt,
+2. generate the .jj file using: ant genjj,
+3. generate parser code using: ant genjava,
+4. Edit SimpleNode.java as follows:
+
+    import bzh.plealog.hge.dataholder.HGESimpleNode;
+    public class SimpleNode extends HGESimpleNode implements Node {
+
+--
+Author: Patrick G. Durand
+Created: november 2003
+Last edited: June 2016

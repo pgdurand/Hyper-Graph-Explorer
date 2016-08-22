@@ -1,0 +1,17 @@
+<HTML>
+    <BODY>
+<p>The "function" package provides the interfaces to implement custom-made manipulation of data.</p>
+
+<p>Functions are used from a query. So before using a function, it has to exist somewhere in the system: this is the purpose of 
+the Function package.</p>
+
+<h3>Describing a function</h3>
+<p>You create a function by implementing a new class that directly inherits from {@link bzh.plealog.hge.api.function.AbstractFunction}. 
+Then you add that function to the HGE core system using {@link bzh.plealog.hge.api.function.FunctionSystem#addFunction(Function)}.
+</p>
+
+<h3>Using a function</h3>
+<p>You can use a function as soon as it exists in the {@link bzh.plealog.hge.api.function.FunctionSystem} of HGE. For instance, 
+if you have define a function named "Cardinality", then you use that name in a query.
+    </BODY>
+</HTML>

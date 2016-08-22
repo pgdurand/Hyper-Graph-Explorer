@@ -1,0 +1,6 @@
+This product includes software developed by:
+
+  The JavaCC Framework Team (https://javacc.java.net/)
+    Sun License is here: https://java.net/projects/javacc/sources/svn/content/trunk/LICENSE?rev=790
+    It targets: javacc
+  
