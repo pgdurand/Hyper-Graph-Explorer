@@ -82,4 +82,14 @@ public interface HGEQuery {
    * 
    * */
   public Set<HGEResult> execute(DataGraphModel model, HDataGraph graph);
+  
+  /**
+   * Add a listener to this query. A single query listener is allowed per query and
+   * it cannot be removed. Simply call this method with null value if you want to 
+   * disable the call to a listener.
+   * 
+   * @param listener the listener.
+   */
+  public void addQueryListener(HGEQueryListener listener);
+
 }
