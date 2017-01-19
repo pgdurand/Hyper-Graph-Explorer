@@ -48,6 +48,8 @@ HGE also provides an abstract formulation of data model and graph. However, it d
 
 To use the system you just have to implement the interfaces of packages "datamodel" and "hypergraph"; so, first have a look at these APIs. Then, you can review a real example by having a look at the [BLAST Filter Tool](https://github.com/pgdurand/BLAST-Filter-Tool) project: it provides an implementation of HGE to deal with annotated BLAST results data; this is an application of HGE in the field of bioinformatics.
 
+Documentation of the library is [here](https://github.com/pgdurand/Hyper-Graph-Explorer/wiki).
+
 ##HGE: develop using an IDE or Ant
 
 I use Eclipse for development purpose, so HGE can be imported in that IDE (see dependencies, below).
