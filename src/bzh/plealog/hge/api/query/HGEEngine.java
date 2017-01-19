@@ -67,7 +67,8 @@ public class HGEEngine {
 	private boolean             _verbose;
 	private long                _runningTime;
 	private HashSet<HGEResult>  _result;
-
+	private HGEQueryListener    _queryListener;
+	
 	//  private Logger               _logger = Logger.getLogger(HGEEngine.class);
 
 	private HGEEngine(){}
@@ -280,6 +281,9 @@ public class HGEEngine {
 				res.addValue(key, result[idx]);
 			}
 		}
+		if(_queryListener!=null){
+		  _queryListener.matchFound(res);
+		}
 		rSet.add(res);
 	}
 
@@ -482,6 +486,9 @@ public class HGEEngine {
 		long                   time;
 		boolean                bRet = true;
 
+		if(_queryListener!=null){
+      _queryListener.queryExecutionStarted();
+    }
 		time = System.currentTimeMillis();
 		rSet = new HashSet<HGEResult>();
 
@@ -509,7 +516,14 @@ public class HGEEngine {
 		}
 		_runningTime = System.currentTimeMillis() - time;
 		_result = rSet;
+    if(_queryListener!=null){
+      _queryListener.queryExecutionDone();
+    }
 		return bRet;
 	}
-
+	
+	public void addQueryListener(HGEQueryListener listener){
+    _queryListener = listener;
+  }
+	
 }

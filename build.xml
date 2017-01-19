@@ -18,7 +18,7 @@
 <project name="HGE" default="help" basedir=".">
 
 <property name="eoql.libName"    value="hge" />
-<property name="eoql.LibVersion" value="2.2.0" />
+<property name="eoql.LibVersion" value="2.2.1" />
 
 <property name="compile.optimize" value="on" />
 <property name="compile.debug"    value="off" />

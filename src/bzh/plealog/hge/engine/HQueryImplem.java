@@ -25,6 +25,7 @@ import bzh.plealog.hge.api.hypergraph.HDataGraph;
 import bzh.plealog.hge.api.query.HGEEngine;
 import bzh.plealog.hge.api.query.HGEQuery;
 import bzh.plealog.hge.api.query.HGEQueryException;
+import bzh.plealog.hge.api.query.HGEQueryListener;
 import bzh.plealog.hge.api.query.HGEResult;
 import bzh.plealog.hge.dataholder.HGEQueryDeclaration;
 import bzh.plealog.hge.parser.HGEParser;
@@ -46,7 +47,8 @@ public class HQueryImplem implements HGEQuery {
   private boolean             _distinct;
   private boolean             _lock;
   private String              _queryRepr;
-
+  private HGEQueryListener    _querylistener;
+  
   /**
    * Constructor.
    **/
@@ -202,6 +204,7 @@ public class HQueryImplem implements HGEQuery {
     try {
       compile(model);
       engine = new HGEEngine(model, graph, _queryObject, _searchMap);
+      engine.addQueryListener(_querylistener);
       engine.execute();
       result=engine.getResult();
     }
@@ -209,6 +212,13 @@ public class HQueryImplem implements HGEQuery {
       throw new HGEQueryException(ex.getMessage());
     }
     return result;
+  }
+
+  /**
+   * @see HGEQuery#addQueryListener(HGEQueryListener)
+   */
+  public void addQueryListener(HGEQueryListener listener){
+    _querylistener = listener;
   }
 
 }

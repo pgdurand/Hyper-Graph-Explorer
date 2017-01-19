@@ -59,4 +59,11 @@ public interface DGMType {
    */
   public Enumeration<DGMType> getChildren();
 
+  /**
+   * Add a new attribute in this type. Overwrite existing attribute.
+   * 
+   * @param attr the new attribute to add to this type.
+   * */
+  public void addAttribute(DGMAttribute attr);
+  
 }
