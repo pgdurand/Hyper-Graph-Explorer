@@ -1,6 +1,7 @@
 #HGE: the Hyper-Graph Explorer system
 
-[![License](http://img.shields.io/:license-Apache--2.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
+[![Build Status](https://travis-ci.org/pgdurand/Hyper-Graph-Explorer.svg?branch=master)](https://travis-ci.org/pgdurand/Hyper-Graph-Explorer)
+[![License Apache](http://img.shields.io/:license-Apache--2.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 
 ##Introduction
 
