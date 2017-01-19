@@ -27,8 +27,8 @@
 <property name="distrib" value="${basedir}/distrib" />
 <property name="lib"     value="${basedir}/lib" />
 <property name="bin"     value="${basedir}/jar" />
-<property name="doc"     value="${basedir}/doc" />
-<property name="doc.api" value="${doc}/api" />
+<property name="Ddoc"     value="${distrib}/doc" />
+<property name="Ddoc.api" value="${Ddoc}/api" />
 
 <property name="javacc.jar"  value="${bin}/javacc.jar"/>
 
@@ -127,27 +127,27 @@
 <!-- target to create JavaDoc                                     -->
 <!-- =================================================================== -->
 <target name="jdoc">
-  <delete dir="${doc.api}" />
-  <mkdir dir="${doc.api}" />
+  <delete dir="${Ddoc.api}" />
+  <mkdir dir="${Ddoc.api}" />
   <javadoc
     packagenames="bzh.plealog.hge.api.datamodel,bzh.plealog.hge.api.function,bzh.plealog.hge.api.hypergraph,bzh.plealog.hge.api.query"
     excludepackagenames="test"
     Overview="${src}/overview.html" 
     Private="false" 
     Splitindex="true" 
-    Windowtitle="Hyper Graph Explorer API" 
+    Windowtitle="Hyper Graph Explorer API - ${eoql.LibVersion}" 
     author="true" 
     classpathref="class.path" 
-    destdir="${doc.api}" 
+    destdir="${Ddoc.api}" 
     maxmemory="256M" 
     sourcepath="${src}" 
     version="true">
     <bottom>
-      <![CDATA[Plealog Software - 2003-2016]]>
+      <![CDATA[<a href="http://www.plealog.com">Plealog Software</a> - 2003-2016]]>
     </bottom>
     <header>
-      <![CDATA[Hyper Graph Explorer API<BR>specification]]></header>
-    <link href="https://docs.oracle.com/javase/6/docs/api/"/>
+      <![CDATA[Hyper Graph Explorer API - ${eoql.LibVersion}]]></header>
+    <link href="https://docs.oracle.com/javase/T/docs/api/"/>
   </javadoc>
 </target>
 	
