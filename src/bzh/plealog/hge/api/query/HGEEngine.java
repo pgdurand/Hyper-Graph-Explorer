@@ -21,10 +21,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-//import org.apache.log4j.Logger;
-
-
-
 
 import bzh.plealog.hge.api.datamodel.DataGraphModel;
 import bzh.plealog.hge.api.hypergraph.HDGHyperEdge;
@@ -63,14 +59,12 @@ public class HGEEngine {
 	private Hashtable<String, Integer> _varNameToResultIdx;
 	private int                 _searchMapSize;
 	private HGEStack            _evaluator;
-	//  private int                 _nResult;
+	private int                 _nResult;
 	private boolean             _verbose;
 	private long                _runningTime;
 	private HashSet<HGEResult>  _result;
 	private HGEQueryListener    _queryListener;
 	
-	//  private Logger               _logger = Logger.getLogger(HGEEngine.class);
-
 	private HGEEngine(){}
 
 	/**
@@ -308,13 +302,17 @@ public class HGEEngine {
 		return(true);
 	}
 
-	/*private String spacer(int size){
+	private String spacer(int size){
+	  return spacer(size, ' ');
+  }
+
+	private String spacer(int size, char ch){
     StringBuffer szBuf = new StringBuffer();
     for (int i=0;i<size;i++)
-      szBuf.append(" ");
+      szBuf.append(ch);
     return szBuf.toString();
-  }*/
-
+	  
+	}
 	private void scanEdge(Set<HGEResult> rSet, Object[] result, int from, int idx, int to, 
 			HDGVertex vertex, HDGHyperEdge edge){
 		HGENodeVarDeclaration  curVar;
@@ -322,8 +320,8 @@ public class HGEEngine {
 		Enumeration<HDGVertex> enum3;
 
 		if (idx==to){
-			//      if (_verbose)
-			//        _logger.info(spacer(from)+"  found edge: "+edge);
+			      if (_verbose)
+			        System.out.println(spacer(from)+"  found edge: "+edge);
 			result[_varToIdxMapper[from+1]] = edge;
 			scanGraph(rSet, copyResult(result), to);
 			return;
@@ -345,8 +343,8 @@ public class HGEEngine {
 			}
 			else if(evaluateTypeConstraint(oppositeVertex, curVar.getType())){
 				result[_varToIdxMapper[idx]] = oppositeVertex;
-				//        if (_verbose)
-				//          _logger.info(spacer(from)+"  found node: "+oppositeVertex);
+				        if (_verbose)
+				          System.out.println(spacer(from)+"  found node: "+oppositeVertex);
 				scanEdge(rSet, copyResult(result), from, idx+1, to, vertex, edge);
 			}
 		}
@@ -366,14 +364,14 @@ public class HGEEngine {
 		int                    nNodeVars, i, idx;
 
 		if(from>=_searchMapSize){
-			//      if (_verbose)
-			//        _logger.info(spacer(from)+"check query constraints");
+			      if (_verbose)
+			        System.out.println(spacer(from)+"check query constraints");
 			//entering here: we have a result! :-)
 			if (evaluateWhereConstraint(result, _query.getConstraints())){
 				saveResult(rSet, result);
-				//        _nResult++;
-				//        if (_verbose)
-				//          _logger.info(spacer(from)+"ok: save result ("+_nResult+")");
+				        _nResult++;
+				        if (_verbose)
+				          System.out.println(spacer(from,'*')+" OK: Save result ("+_nResult+")");
 			}
 			return;
 		}
@@ -406,17 +404,17 @@ public class HGEEngine {
 						if ((i+1)<nNodeVars)
 							szBuf.append(" - ");
 					}
-					/*_logger.info(spacer(from)+
+					System.out.println(spacer(from)+
               "search: "+eVar.getName()+" ("+result[_varToIdxMapper[from+1]]+")"+
               " from: "+nVar.getName()+" ("+vertex+")"+
-              " to: "+szBuf.toString());*/
+              " to: "+szBuf.toString());
 				}
 				//stop - print help
 				enum1 = _dGraph.edges(vertex);
 				while(enum1.hasMoreElements()){
 					edge = (HDGHyperEdge) enum1.nextElement();
-					//          if (_verbose)
-					//            _logger.info(spacer(from)+" check: "+edge);
+					          if (_verbose)
+					            System.out.println(spacer(from)+" check: "+edge);
 					if (evaluateTypeConstraint(edge, eVar.getType())){
 						//start the scan of all edge's connected vertices
 						scanEdge(rSet, copyResult(result), from, from+2, 
@@ -443,8 +441,8 @@ public class HGEEngine {
 							if (evaluatePath(pVar, path)){
 								result[_varToIdxMapper[from+1]] = path;
 								result[_varToIdxMapper[from+2]]=vertex2;
-								//if (_verbose)
-								//  _logger.info(spacer(from)+"  found path for "+pVar.getName());
+								if (_verbose)
+								  System.out.println(spacer(from)+"  found path for "+pVar.getName());
 								scanGraph(rSet, copyResult(result), from+3);
 							}
 						}
@@ -456,19 +454,14 @@ public class HGEEngine {
 					path = _dGraph.findPath(vertex, vertex2);
 					if (evaluatePath(pVar, path)){
 						result[_varToIdxMapper[from+1]] = path;
-						//if (_verbose)
-						//  _logger.info(spacer(from)+"  found path for "+pVar.getName());
+						if (_verbose)
+						  System.out.println(spacer(from)+"  found path for "+pVar.getName());
 						scanGraph(rSet, copyResult(result), from+3);
 					}
 				}
 			}
 		}
 	}
-
-	/*private void cleanResult(Object[] result){
-        for(int i=0;i<_query.getAllVars().size();i++)
-            result[i]=null;
-    }*/
 
 	/**
 	 * Start the execution.
@@ -481,7 +474,7 @@ public class HGEEngine {
 		HDGVertex              vertex;
 		Enumeration<HDGVertex> enum1;
 		HGENodeVarDeclaration  nVar;
-		//    int                    nVertices=0;
+		int                    nVertices=0;
 		HashSet<HGEResult>     rSet;
 		long                   time;
 		boolean                bRet = true;
@@ -497,22 +490,25 @@ public class HGEEngine {
 			enum1 = _dGraph.vertices();
 			nVar = (HGENodeVarDeclaration) 
 					_query.getVariable(_searchMap.get(0).toString());
-			//      _nResult=0;
+			      _nResult=0;
 			while(enum1.hasMoreElements()){
 				vertex = enum1.nextElement();
 				if (evaluateTypeConstraint(vertex, nVar.getType())){
 					result[_varToIdxMapper[0]] = vertex;
-					//if (_verbose)
-					//  _logger.info("Start scan with: "+nVar.getName()+" ("+vertex.toString()+")");
+					if (_verbose)
+					  System.out.println("Start scan with: "+nVar.getName()+" ("+vertex.toString()+")");
 					scanGraph(rSet, copyResult(result), 0);
 				}
-				//        nVertices++;
+				nVertices++;
 			}
 		}
 		catch (Exception ex){
 			//since logger has been removed, should we throw a RuntimeException ?
 			//_logger.warn("Query engine failed: "+ex.toString());
 			bRet=false;
+		}
+		if (_verbose){
+		  System.out.println(String.format("Scan %d paths", nVertices));
 		}
 		_runningTime = System.currentTimeMillis() - time;
 		_result = rSet;
