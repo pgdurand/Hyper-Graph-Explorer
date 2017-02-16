@@ -91,5 +91,10 @@ public interface HGEQuery {
    * @param listener the listener.
    */
   public void addQueryListener(HGEQueryListener listener);
+  
+  /**
+   * To be used for debugging purpose.
+   */
+  public void setVerboseMode(boolean verbose);
 
 }
