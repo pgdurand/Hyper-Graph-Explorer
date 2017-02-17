@@ -217,10 +217,14 @@ public class HQueryImplem implements HGEQuery {
   }
 
   /**
-   * @see HGEQuery#addQueryListener(HGEQueryListener)
+   * @see HGEQuery#setQueryListener(HGEQueryListener)
    */
-  public void addQueryListener(HGEQueryListener listener){
+  public void setQueryListener(HGEQueryListener listener){
     _querylistener = listener;
+  }
+
+  public void addQueryListener(HGEQueryListener listener){
+    setQueryListener(listener);
   }
 
   /**
