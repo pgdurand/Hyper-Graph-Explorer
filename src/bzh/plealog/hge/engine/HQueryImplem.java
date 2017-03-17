@@ -46,6 +46,7 @@ public class HQueryImplem implements HGEQuery {
   private String              _retVars;
   private boolean             _distinct;
   private boolean             _lock;
+  private boolean             _verbose;
   private String              _queryRepr;
   private HGEQueryListener    _querylistener;
   
@@ -205,6 +206,7 @@ public class HQueryImplem implements HGEQuery {
       compile(model);
       engine = new HGEEngine(model, graph, _queryObject, _searchMap);
       engine.addQueryListener(_querylistener);
+      engine.setVerbose(_verbose);
       engine.execute();
       result=engine.getResult();
     }
@@ -215,10 +217,20 @@ public class HQueryImplem implements HGEQuery {
   }
 
   /**
-   * @see HGEQuery#addQueryListener(HGEQueryListener)
+   * @see HGEQuery#setQueryListener(HGEQueryListener)
    */
-  public void addQueryListener(HGEQueryListener listener){
+  public void setQueryListener(HGEQueryListener listener){
     _querylistener = listener;
   }
 
+  public void addQueryListener(HGEQueryListener listener){
+    setQueryListener(listener);
+  }
+
+  /**
+   * @see HGEQuery#setVerboseMode(boolean)
+   */
+  public void setVerboseMode(boolean verbose){
+    _verbose = verbose;
+  }
 }
