@@ -1,9 +1,8 @@
-#HGE: the Hyper-Graph Explorer system
+# HGE: the Hyper-Graph Explorer system
 
-[![Build Status](https://travis-ci.org/pgdurand/Hyper-Graph-Explorer.svg?branch=master)](https://travis-ci.org/pgdurand/Hyper-Graph-Explorer)
-[![License Apache](http://img.shields.io/:license-Apache--2.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
+[![License Apache](http://img.shields.io/:license-Apache--2.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html) [![Build Status](https://travis-ci.org/pgdurand/Hyper-Graph-Explorer.svg?branch=master)](https://travis-ci.org/pgdurand/Hyper-Graph-Explorer) [![](https://tokei.rs/b1/github/pgdurand/Hyper-Graph-Explorer?category=code)](https://github.com/pgdurand/Hyper-Graph-Explorer) [![](https://img.shields.io/badge/platform-Java--1.7+-yellow.svg)](http://www.oracle.com/technetwork/java/javase/downloads/index.html) [![](https://img.shields.io/badge/run_on-Linux--Mac_OSX--Windows-yellowgreen.svg)]()
 
-##Introduction
+## Introduction
 
 This project contains a Java software implementing a data modeling and querying system relying on an hyper-graph.
 
@@ -14,13 +13,13 @@ HGE implements:
   * a query system enabling to explore the data graph using hyper-graph queries (relies on [subgraph isomorphism problem](https://en.wikipedia.org/wiki/Subgraph_isomorphism_problem))
   * two ways of writing queries: using an API or a graph query language ([more here](./doc/README.md))
 
-##Requirements
+## Requirements
 
 Use a [Java Virtual Machine](http://www.oracle.com/technetwork/java/javase/downloads/index.html) 1.5 (or above) from Oracle. 
 
 *Not tested with any other JVM providers but Oracle... so there is no guarantee that the software will work as expected if not using Oracle's JVM.*
 
-##HGE: table of contents
+## HGE: table of contents
 
 HGE provides several packages to enable the following features:
 
@@ -40,7 +39,7 @@ by their name in a query.
 
 Other packages are support codes to implement the entire system, mostly the query language parser/validator and the query execution engine. 
 
-##HGE: how to use it with real data?
+## HGE: how to use it with real data?
 
 HGE comes with a concrete implementaton of the entire query system: query representation and execution; as stated above, the query engine implements a method to solve the subgraph isomorphism problem.
 
@@ -50,13 +49,13 @@ To use the system you just have to implement the interfaces of packages "datamod
 
 Documentation of the library is [here](https://github.com/pgdurand/Hyper-Graph-Explorer/wiki).
 
-##HGE: develop using an IDE or Ant
+## HGE: develop using an IDE or Ant
 
 I use Eclipse for development purpose, so HGE can be imported in that IDE (see dependencies, below).
 
 Otherwise, you can use any other Java IDE and/or work on the command-line: a 'build.xml' for Ant 1.7+ is provided. 
 
-##HGE: dependencies
+## HGE: dependencies
 
 HGE does not depend on any other external libraries but JUnit 4. However, JAR for JUnit is not provided with HGE. 
 
@@ -66,11 +65,11 @@ Either you have JUnit available on your system (e.g. it is provided with Eclipse
 The HGE query language parser has been compiled from a grammar file using JavaCC 3.2. However, you do not need JavaCC jar file
 to compile HGE, since parser classes have already been generated (within package bzh.plealog.hge.parser).
 
-##License
+## License
 
 HGE is is released under the [Apache 2 license](http://www.apache.org/licenses/LICENSE-2.0). 
 
-##A short story of HGE (2003-today)
+## A short story of HGE (2003-today)
 
 The idea of HGE comes by November 2003 when I had to develop a software to explore biological data sets. At that period of time, I was working in the field of "bioinformatics", dealing with DNA and protein sequences in general and with the deciphering of [BLAST](http://blast.ncbi.nlm.nih.gov/Blast.cgi) results in the context of bacterial genome annotation. 
 
@@ -83,4 +82,4 @@ Finally, when Korilog ceased its activities on June 2015, I decided to release H
 First release of HGE was written using Java 1.4. Then, it was ported to Java 5.
 
 --
-(c) 2006-2016 - Patrick G. Durand
+(c) 2006-2017 - Patrick G. Durand
